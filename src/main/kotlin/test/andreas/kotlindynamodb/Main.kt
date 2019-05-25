@@ -1,5 +1,7 @@
 package test.andreas.kotlindynamodb
 
-fun main(args: Array<String>) {
-    TableCreator("Movies").create()
+fun main() {
+    val tableName = "Movies"
+    TableCreator(tableName).create()
+    MoviesLoadData().loadData(tableName, "moviedata.json")
 }
