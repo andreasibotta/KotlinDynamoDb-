@@ -45,5 +45,26 @@
                 "Viola Davis"
             ]
         }
+    },
+    {
+        "year": 2014,
+        "title": "Transformers: Age of Extinction",
+        "info": {
+            "directors": ["Michael Bay"],
+            "release_date": "2014-06-25T00:00:00Z",
+            "genres": [
+                "Action",
+                "Adventure",
+                "Sci-Fi"
+            ],
+            "image_url": "http://ia.media-imdb.com/images/M/MV5BMTQyMDA5Nzg0Nl5BMl5BanBnXkFtZTgwNzA4NDcxMDE@._V1_SX400_.jpg",
+            "plot": "A mechanic and his daughter make a discovery that brings down Autobots and Decepticons - and a paranoid government official - on them.",
+            "rank": 10,
+            "actors": [
+                "Mark Wahlberg",
+                "Nicola Peltz",
+                "Jack Reynor"
+            ]
+        }
     }
 ]
