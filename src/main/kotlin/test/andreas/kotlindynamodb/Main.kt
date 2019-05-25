@@ -20,26 +20,34 @@ fun main(args: Array<String>) {
 
     val tableName = "Movies"
 
-    try {
-        println("Attempting to create table; please wait...")
-        val table = dynamoDB.createTable(
-            tableName,
-            Arrays.asList(
-                KeySchemaElement("year", KeyType.HASH), // Partition
-                // key
-                KeySchemaElement("title", KeyType.RANGE)
-            ), // Sort key
-            Arrays.asList(
-                AttributeDefinition("year", ScalarAttributeType.N),
-                AttributeDefinition("title", ScalarAttributeType.S)
-            ),
-            ProvisionedThroughput(10L, 10L)
-        )
-        table.waitForActive()
-        println("Success.  Table status: " + table.description.tableStatus)
 
-    } catch (e: Exception) {
-        System.err.println("Unable to create table: ")
-        System.err.println(e.message)
+    val exists = dynamoDB.listTables().any {
+        it.tableName == tableName
+    }
+    println(exists)
+
+    if (!exists) {
+        try {
+            println("Attempting to create table; please wait...")
+            val table = dynamoDB.createTable(
+                tableName,
+                Arrays.asList(
+                    KeySchemaElement("year", KeyType.HASH), // Partition
+                    // key
+                    KeySchemaElement("title", KeyType.RANGE)
+                ), // Sort key
+                Arrays.asList(
+                    AttributeDefinition("year", ScalarAttributeType.N),
+                    AttributeDefinition("title", ScalarAttributeType.S)
+                ),
+                ProvisionedThroughput(10L, 10L)
+            )
+            table.waitForActive()
+            println("Success.  Table status: " + table.description.tableStatus)
+
+        } catch (e: Exception) {
+            System.err.println("Unable to create table: ")
+            System.err.println(e.message)
+        }
     }
 }
