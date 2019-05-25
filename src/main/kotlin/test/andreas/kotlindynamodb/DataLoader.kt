@@ -40,13 +40,19 @@ class MoviesLoadData {
             val ayear = currentNode.path("year").asInt()
             val atitle = currentNode.path("title").asText()
 
-            val image = currentNode.get("info").get("image_url").asText()
+            val adirectors = currentNode.get("info").get("directors").asIterable().map { it.asText() }
+            val arating = currentNode.get("info").get("rating").asText().toDouble()
+            val agenres = currentNode.get("info").get("genres").asIterable().map { it.asText() }
 
             val movie = Movie().apply {
-                year = Integer(ayear)
+                year = ayear
                 title = atitle
-                data = image
-            }
+                movieInfo = Movie.MovieInfo().apply {
+                    directors = adirectors.toSet()
+                    rating = arating
+                    genres = agenres.toSet()
+                }
+             }
             try {
                 mapper.save(movie)
                 println("Wrote movie to database")
