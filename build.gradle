@@ -20,6 +20,10 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.amazonaws:aws-java-sdk-s3'
+    implementation 'com.amazonaws:aws-java-sdk-bom:1.11.228'
+    implementation 'com.amazonaws:aws-java-sdk-dynamodb:1.11.228'
+
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     testCompile 'junit:junit:4.11'
     testCompile "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
