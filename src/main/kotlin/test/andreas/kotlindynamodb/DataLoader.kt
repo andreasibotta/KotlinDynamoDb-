@@ -10,6 +10,9 @@ import com.fasterxml.jackson.core.JsonFactory
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
+
+
 
 class MoviesLoadData {
     fun loadData(tableName: String, filename: String) {
@@ -28,23 +31,27 @@ class MoviesLoadData {
 
         var currentNode: ObjectNode
 
+
+        val mapper = DynamoDBMapper(client)
+
         while (iter.hasNext()) {
             currentNode = iter.next() as ObjectNode
 
-            val year = currentNode.path("year").asInt()
-            val title = currentNode.path("title").asText()
+            val ayear = currentNode.path("year").asInt()
+            val atitle = currentNode.path("title").asText()
 
+            val image = currentNode.get("info").get("image_url").asText()
+
+            val movie = Movie().apply {
+                year = Integer(ayear)
+                title = atitle
+                data = image
+            }
             try {
-                table.putItem(
-                    Item().withPrimaryKey("year", year, "title", title).withJSON(
-                        "info",
-                        currentNode.path("info").toString()
-                    )
-                )
-                println("PutItem succeeded: $year $title")
-
+                mapper.save(movie)
+                println("Wrote movie to database")
             } catch (e: Exception) {
-                System.err.println("Unable to add movie: $year $title")
+                System.err.println("Unable to add movie: $ayear $atitle")
                 System.err.println(e.message)
                 break
             }
