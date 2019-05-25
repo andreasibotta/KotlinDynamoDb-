@@ -1,0 +1,29 @@
+version: '3'
+services:
+  # Localstack is neat! Check out the docs here https://github.com/localstack/localstack
+  localstack:
+    image: localstack/localstack
+    ports:
+      - "4567-4583:4567-4583"
+      - "${PORT_WEB_UI-8090}:${PORT_WEB_UI-8080}"
+    expose:
+      - 4569 # dynamodb
+    environment:
+      - SERVICES=${SERVICES-dynamodb, sqs}
+      - DEBUG=${DEBUG- }
+      - DATA_DIR=${DATA_DIR- }
+      - PORT_WEB_UI=${PORT_WEB_UI- }
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
+      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOSTNAME_EXTERNAL=localstack
+    volumes:
+      - localstack-datavolume:/tmp/localstack
+      - "/var/run/docker.sock:/var/run/docker.sock"
+  kolindynamodb:
+    build:
+      context: .
+    command: java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -jar testing.jar
+
+volumes:
+  localstack-datavolume:
