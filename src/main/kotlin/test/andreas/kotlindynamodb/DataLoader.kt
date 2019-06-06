@@ -20,10 +20,6 @@ class MoviesLoadData {
             .withEndpointConfiguration(AwsClientBuilder.EndpointConfiguration("http://localhost:4569", "us-west-2"))
             .build()
 
-        val dynamoDB = DynamoDB(client)
-
-        val table = dynamoDB.getTable(tableName)
-
         val parser = JsonFactory().createParser(File(filename))
 
         val rootNode = ObjectMapper().readTree<JsonNode>(parser)
@@ -55,7 +51,7 @@ class MoviesLoadData {
              }
             try {
                 mapper.save(movie)
-                println("Wrote movie to database")
+                println("Wrote movie to database: $ayear $atitle")
             } catch (e: Exception) {
                 System.err.println("Unable to add movie: $ayear $atitle")
                 System.err.println(e.message)

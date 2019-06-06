@@ -6,10 +6,10 @@ import com.amazonaws.services.dynamodbv2.datamodeling.*
 @DynamoDBTable(tableName = "Movies")
 class Movie {
     @get:DynamoDBHashKey
-    var year: Int = -1
+    lateinit var title: String
 
     @get:DynamoDBRangeKey
-    lateinit var title: String
+    var year: Int = -1
 
     @get:DynamoDBAttribute
     lateinit var movieInfo: MovieInfo

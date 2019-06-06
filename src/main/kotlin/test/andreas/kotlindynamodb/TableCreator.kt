@@ -26,9 +26,9 @@ class TableCreator(private val tableName: String) {
                 val table = dynamoDB.createTable(
                     tableName,
                     Arrays.asList(
-                        KeySchemaElement("year", KeyType.HASH), // Partition
+                        KeySchemaElement("title", KeyType.HASH), // Partition
                         // key
-                        KeySchemaElement("title", KeyType.RANGE)
+                        KeySchemaElement("year", KeyType.RANGE)
                     ), // Sort key
                     Arrays.asList(
                         AttributeDefinition("year", ScalarAttributeType.N),
