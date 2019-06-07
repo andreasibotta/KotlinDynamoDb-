@@ -23,19 +23,24 @@ class TableCreator(private val tableName: String) {
         } else {
             try {
                 println("Attempting to create table; please wait...")
-                val table = dynamoDB.createTable(
-                    tableName,
-                    Arrays.asList(
-                        KeySchemaElement("title", KeyType.HASH), // Partition
-                        // key
-                        KeySchemaElement("year", KeyType.RANGE)
-                    ), // Sort key
-                    Arrays.asList(
+                    val keySchema = Arrays.asList(
+                        KeySchemaElement("title", KeyType.HASH), // Partition key
+                        KeySchemaElement("year", KeyType.RANGE) //sort key
+                    )
+                val attributeDefinitions = Arrays.asList(
                         AttributeDefinition("year", ScalarAttributeType.N),
                         AttributeDefinition("title", ScalarAttributeType.S)
-                    ),
-                    ProvisionedThroughput(10L, 10L)
+                    )
+                val provisionedThroughput = ProvisionedThroughput(10L, 10L)
+                val table =
+                dynamoDB.createTable(
+                    CreateTableRequest()
+                        .withTableName(tableName)
+                        .withKeySchema(keySchema)
+                        .withAttributeDefinitions(attributeDefinitions)
+                        .withProvisionedThroughput(provisionedThroughput)
                 )
+
                 table.waitForActive()
                 println("Success.  Table status: " + table.description.tableStatus)
 
