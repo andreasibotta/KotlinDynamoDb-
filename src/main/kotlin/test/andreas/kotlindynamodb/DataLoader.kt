@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
 
 
-
 class MoviesLoadData {
     fun loadData(tableName: String, filename: String) {
         val client = AmazonDynamoDBClientBuilder.standard()
@@ -39,16 +38,16 @@ class MoviesLoadData {
             val adirectors = currentNode.get("info").get("directors").asIterable().map { it.asText() }
             val arating = currentNode.get("info").get("rating").asText().toDouble()
             val agenres = currentNode.get("info").get("genres").asIterable().map { it.asText() }
+            val adate = currentNode.get("info").get("release_date").asText()
 
             val movie = Movie().apply {
                 year = ayear
                 title = atitle
-                movieInfo = Movie.MovieInfo().apply {
-                    directors = adirectors.toSet()
-                    rating = arating
-                    genres = agenres.toSet()
-                }
-             }
+                directors = adirectors.toSet()
+                rating = arating
+                genres = agenres.toSet()
+                releaseDate = adate
+            }
             try {
                 mapper.save(movie)
                 println("Wrote movie to database: $ayear $atitle")

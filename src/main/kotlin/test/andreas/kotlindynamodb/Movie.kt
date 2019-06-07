@@ -12,17 +12,14 @@ class Movie {
     var year: Int = -1
 
     @get:DynamoDBAttribute
-    lateinit var movieInfo: MovieInfo
+    lateinit var directors: Set<String>
 
-    @DynamoDBDocument
-    class MovieInfo {
-        @get:DynamoDBAttribute
-        lateinit var directors: Set<String>
+    @get:DynamoDBAttribute
+    var rating: Double = -1.0
 
-        @get:DynamoDBAttribute
-         var rating: Double = -1.0
+    @get:DynamoDBAttribute
+    lateinit var genres: Set<String>
 
-        @get:DynamoDBAttribute
-        lateinit var genres: Set<String>
-    }
+    @get:DynamoDBAttribute
+    lateinit var releaseDate: String
 }

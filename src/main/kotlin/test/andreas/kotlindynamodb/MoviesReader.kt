@@ -16,6 +16,7 @@ class MoviesReader {
         val partitionKey = Movie()
 
         partitionKey.title = "Rush"
+        val filter = ""
         val queryExpression = DynamoDBQueryExpression<Movie>()
             .withHashKeyValues(partitionKey)
 
@@ -24,7 +25,8 @@ class MoviesReader {
         for (movie in itemList) {
             val year = movie.year
             val title = movie.title
-            val data = movie.movieInfo.directors
+            val data = movie.directors
+            val releaseData = movie.releaseDate
             println("Read movie: $year, $title, $data")
         }
     }
