@@ -6,5 +6,7 @@ fun main() {
     MoviesLoadData().loadData(tableName, "smallMovies.json")
 
     MoviesReader().read()
+
+    MoviesReader().readGSI()
 }
 
