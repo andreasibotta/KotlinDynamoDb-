@@ -16,7 +16,7 @@ import com.amazonaws.services.dynamodbv2.model.ComparisonOperator
 
 
 
-class MoviesReader(private val tableName: String) {
+class IssuesReader(private val tableName: String) {
     fun read() {
 
         val client = AmazonDynamoDBClientBuilder.standard()
@@ -41,16 +41,9 @@ class MoviesReader(private val tableName: String) {
 
             when {
                 indexName === "CreateDateIndex" -> {
-//                    println("Issues filed on 2013-11-01")
-//                    querySpec.withKeyConditionExpression("CreateDate = :v_date and begins_with(IssueId, :v_issue)")
-//                        .withValueMap(ValueMap().withString(":v_date", "2013-11-01").withString(":v_issue", "A-"))
-//                    items = index.query(querySpec)
-
-
                     val partitionKey = Issue()
 
                     partitionKey.createDate = "2013-11-01"
-                    partitionKey.issueId = "A-102"
 
                     val rangeKeyCondition = Condition()
                     rangeKeyCondition.withComparisonOperator(ComparisonOperator.BEGINS_WITH)
@@ -88,13 +81,6 @@ class MoviesReader(private val tableName: String) {
                 }
             }
 
-//            val iterator = items!!.iterator()
-//
-//            println("Query: printing results...")
-//
-//            while (iterator.hasNext()) {
-//                println(iterator.next().toJSONPretty())
-//            }
         }
     }
 }

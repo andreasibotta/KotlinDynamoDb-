@@ -1,26 +1,13 @@
 package test.andreas.kotlindynamodb
 
-import java.io.File
-
 import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
-import com.amazonaws.services.dynamodbv2.document.DynamoDB
-import com.amazonaws.services.dynamodbv2.document.Item
-import com.fasterxml.jackson.core.JsonFactory
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.databind.node.ObjectNode
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
 
 
-class MoviesLoadData(private val tableName: String) {
+class IssuesLoadData(private val tableName: String) {
     fun loadData(filename: String) {
         System.out.println("Loading data into table " + tableName + "...");
-
-        // IssueId, Title,
-        // Description,
-        // CreateDate, LastUpdateDate, DueDate,
-        // Priority, Status
 
         putItem(
             Issue(
@@ -60,12 +47,6 @@ class MoviesLoadData(private val tableName: String) {
             System.err.println("Unable to add issue $issue")
             System.err.println(e.message)
         }
-//        val item = Item().withPrimaryKey("IssueId", issueId).withString("Title", title)
-//            .withString("Description", description).withString("CreateDate", createDate)
-//            .withString("LastUpdateDate", lastUpdateDate).withString("DueDate", dueDate)
-//            .withNumber("Priority", priority!!).withString("Status", status)
-
-//        table.putItem(item)
     }
 
 }
