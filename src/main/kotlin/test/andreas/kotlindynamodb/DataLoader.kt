@@ -36,7 +36,7 @@ class MoviesLoadData(private val tableName: String) {
             )
         )
 
-        putItem(Issue("A-103", "Test failure", "Functional test of Project X produces errors", "2013-11-01", "2013-11-02",
+        putItem(Issue("B-103", "Test failure", "Functional test of Project X produces errors", "2013-11-01", "2013-11-02",
             "2013-11-10", 1, "In progress"))
 
         putItem(Issue("A-104", "Compilation error", "Variable 'messageCount' was not initialized.", "2013-11-15",

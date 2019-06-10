@@ -2,11 +2,18 @@ package test.andreas.kotlindynamodb
 
 import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
 import com.amazonaws.services.dynamodbv2.document.*
 import com.amazonaws.services.dynamodbv2.document.QueryOutcome
 import com.amazonaws.services.dynamodbv2.document.ItemCollection
+import com.amazonaws.services.dynamodbv2.model.Condition
+import com.amazonaws.services.dynamodbv2.model.AttributeValue
+import com.amazonaws.services.dynamodbv2.model.ComparisonOperator
+
+
 
 
 class MoviesReader(private val tableName: String) {
@@ -30,13 +37,33 @@ class MoviesReader(private val tableName: String) {
 
             val querySpec = QuerySpec()
 
+            val mapper = DynamoDBMapper(client)
 
             when {
                 indexName === "CreateDateIndex" -> {
-                    println("Issues filed on 2013-11-01")
-                    querySpec.withKeyConditionExpression("CreateDate = :v_date and begins_with(IssueId, :v_issue)")
-                        .withValueMap(ValueMap().withString(":v_date", "2013-11-01").withString(":v_issue", "A-"))
-                    items = index.query(querySpec)
+//                    println("Issues filed on 2013-11-01")
+//                    querySpec.withKeyConditionExpression("CreateDate = :v_date and begins_with(IssueId, :v_issue)")
+//                        .withValueMap(ValueMap().withString(":v_date", "2013-11-01").withString(":v_issue", "A-"))
+//                    items = index.query(querySpec)
+
+
+                    val partitionKey = Issue()
+
+                    partitionKey.createDate = "2013-11-01"
+                    partitionKey.issueId = "A-102"
+
+                    val rangeKeyCondition = Condition()
+                    rangeKeyCondition.withComparisonOperator(ComparisonOperator.BEGINS_WITH)
+                        .withAttributeValueList(AttributeValue().withS("A-"))
+
+                    val queryExpression = DynamoDBQueryExpression<Issue>()
+                        .withHashKeyValues(partitionKey).withRangeKeyCondition("IssueId", rangeKeyCondition)
+                    queryExpression.setConsistentRead(false)
+
+                    val items = mapper.query(Issue::class.java, queryExpression)
+
+                    println("Query: printing results...")
+                    items.forEach { item -> println(item) }
                 }
                 indexName === "TitleIndex" -> {
                     println("Compilation errors")
@@ -61,13 +88,13 @@ class MoviesReader(private val tableName: String) {
                 }
             }
 
-            val iterator = items!!.iterator()
-
-            println("Query: printing results...")
-
-            while (iterator.hasNext()) {
-                println(iterator.next().toJSONPretty())
-            }
+//            val iterator = items!!.iterator()
+//
+//            println("Query: printing results...")
+//
+//            while (iterator.hasNext()) {
+//                println(iterator.next().toJSONPretty())
+//            }
         }
     }
 }
