@@ -2,98 +2,72 @@ package test.andreas.kotlindynamodb
 
 import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression
 import com.amazonaws.services.dynamodbv2.document.utils.ValueMap
-import sun.security.krb5.internal.KDCOptions.with
 import com.amazonaws.services.dynamodbv2.document.spec.QuerySpec
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB
 import com.amazonaws.services.dynamodbv2.document.*
-import com.amazonaws.services.dynamodbv2.document.utils.NameMap
-import com.amazonaws.services.dynamodbv2.model.Projection
-import sun.security.pkcs11.wrapper.Functions.getAttributeName
-import com.amazonaws.services.dynamodbv2.model.KeySchemaElement
-import com.amazonaws.services.dynamodbv2.model.GlobalSecondaryIndexDescription
-import com.amazonaws.services.dynamodbv2.model.TableDescription
+import com.amazonaws.services.dynamodbv2.document.QueryOutcome
+import com.amazonaws.services.dynamodbv2.document.ItemCollection
 
 
-class MoviesReader {
+class MoviesReader(private val tableName: String) {
     fun read() {
+
         val client = AmazonDynamoDBClientBuilder.standard()
             .withEndpointConfiguration(AwsClientBuilder.EndpointConfiguration("http://localhost:4569", "us-west-2"))
             .build()
 
-        val mapper = DynamoDBMapper(client)
-
-        val partitionKey = Movie()
-
-        partitionKey.title = "Rush"
-        val queryExpression = DynamoDBQueryExpression<Movie>()
-            .withHashKeyValues(partitionKey)
-
-        val itemList = mapper.query(Movie::class.java, queryExpression)
-
-        for (movie in itemList) {
-            val year = movie.year
-            val title = movie.title
-            val data = movie.directors
-            val releaseData = movie.releaseDate
-            println("Read movie: $year, $title, $data")
-        }
-    }
-
-    fun readGSI() {
-        val client = AmazonDynamoDBClientBuilder.standard().build()
         val dynamoDB = DynamoDB(client)
 
-        val table = dynamoDB.getTable("Movies")
-        val index = table.getIndex("ReleaseDateIndex")
+        val table = dynamoDB.getTable(tableName)
 
-        val spec = QuerySpec()
-            .withKeyConditionExpression("#d = :v_date and rating = :v_precip")
-            .withNameMap(
-                NameMap()
-                    .with("#d", "releaseDate")
-            )
-            .withValueMap(
-                ValueMap()
-                    .withString(":v_date", "2013-08-10")
-                    .withNumber(":v_precip", 0)
-            )
+        listOf("CreateDateIndex", "TitleIndex", "DueDateIndex").forEach { indexName ->
+            println("\n***********************************************************\n")
+            System.out.print("Querying index $indexName...")
 
-        val items = index.query(spec)
-        val iter = items.iterator()
-        while (iter.hasNext()) {
-            println(iter.next().toJSONPretty())
+            val index = table.getIndex(indexName)
+
+            var items: ItemCollection<QueryOutcome>? = null
+
+            val querySpec = QuerySpec()
+
+
+            when {
+                indexName === "CreateDateIndex" -> {
+                    println("Issues filed on 2013-11-01")
+                    querySpec.withKeyConditionExpression("CreateDate = :v_date and begins_with(IssueId, :v_issue)")
+                        .withValueMap(ValueMap().withString(":v_date", "2013-11-01").withString(":v_issue", "A-"))
+                    items = index.query(querySpec)
+                }
+                indexName === "TitleIndex" -> {
+                    println("Compilation errors")
+                    querySpec.withKeyConditionExpression("Title = :v_title and begins_with(IssueId, :v_issue)")
+                        .withValueMap(
+                            ValueMap().withString(":v_title", "Compilation error").withString(
+                                ":v_issue",
+                                "A-"
+                            )
+                        )
+                    items = index.query(querySpec)
+                }
+                indexName === "DueDateIndex" -> {
+                    println("Items that are due on 2013-11-30")
+                    querySpec.withKeyConditionExpression("DueDate = :v_date")
+                        .withValueMap(ValueMap().withString(":v_date", "2013-11-30"))
+                    items = index.query(querySpec)
+                }
+                else -> {
+                    println("\nNo valid index name provided")
+                    return
+                }
+            }
+
+            val iterator = items!!.iterator()
+
+            println("Query: printing results...")
+
+            while (iterator.hasNext()) {
+                println(iterator.next().toJSONPretty())
+            }
         }
     }
-//
-//    fun describeGSIs() {
-//        val client = AmazonDynamoDBClientBuilder.standard().build()
-//        val dynamoDB = DynamoDB(client)
-//
-//        val table = dynamoDB.getTable("Movies")
-//        val tableDesc = table.describe()
-//
-//
-//        val gsiIter = tableDesc.globalSecondaryIndexes.iterator()
-//        while (gsiIter.hasNext()) {
-//            val gsiDesc = gsiIter.next()
-//            println(
-//                "Info for index "
-//                        + gsiDesc.indexName + ":"
-//            )
-//
-//            val kseIter = gsiDesc.keySchema.iterator()
-//            while (kseIter.hasNext()) {
-//                val kse = kseIter.next()
-//                System.out.printf("\t%s: %s\n", kse.attributeName, kse.keyType)
-//            }
-//            val projection = gsiDesc.projection
-//            println(("\tThe projection type is: " + projection.projectionType))
-//            if (projection.projectionType.toString() == "INCLUDE") {
-//                println(("\t\tThe non-key projected attributes are: " + projection.nonKeyAttributes))
-//            }
-//        }
-//    }
 }
